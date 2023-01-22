@@ -1,0 +1,39 @@
+-r base.in
+
+# Code quality
+# ------------------------------------------------------------------------------
+black
+isort
+autoflake
+flake8
+pre-commit
+
+# Testing
+# ------------------------------------------------------------------------------
+mypy
+pytest
+pytest-cov
+pytest_cases
+pytest-logger
+pytest-lazy-fixture
+pytest-mock
+mock
+
+{% if cookiecutter.use_rest == 'y' -%}
+gevent
+httptest
+requests-mock
+faker
+httpx
+{%- endif %}
+
+{% if cookiecutter.use_message_broker == 'Redis' or cookiecutter.use_message_broker == 'RabbitMQ' -%}
+pifpaf
+{%- endif %}
+
+# Devtools
+# ------------------------------------------------------------------------------
+watchdog
+pip-tools
+bumpver
+ipython

@@ -1,0 +1,18 @@
+{
+    "full_name": "Alessandro Sabellico",
+    "email": "a.sabellico@gmail.com",
+    "github_username": "asabellico",
+
+    "project_slug": "my_project",
+    "project_name": "My Project",
+    "project_short_description": "Python Boilerplate contains all the boilerplate you need to create a basic Python package.",
+    "version": "0.1.0",
+    "open_source_license": ["MIT license", "BSD license", "ISC license", "Apache Software License 2.0", "GNU General Public License v3", "Not open source"],
+
+    "base_image": "python:3.10-slim-bullseye",
+    "tests_min_coverage": "100",
+
+    "use_elk": "n",
+    "use_message_broker": [ "None", "Redis", "RabbitMQ"],
+    "use_rest": "n"
+}

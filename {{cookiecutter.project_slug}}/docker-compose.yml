@@ -1,0 +1,83 @@
+version: '3.6'
+
+services:
+{% if cookiecutter.use_rest == 'y' %}
+  api:
+    build:
+      context: .
+      target: api
+    command: --reload --reload-dir /app/{{cookiecutter.project_slug}}/api
+    environment:
+      PYTHONWARNINGS: ignore
+{% if cookiecutter.use_elk == 'y' %}
+      ELASTICSEARCH_HOST: ${ELASTIC_URL}
+      ELASTICSEARCH_CHECK_TLS: 'False' # NOT FOR PRODUCTION
+      ELASTICSEARCH_USER: ${ELASTIC_USER} # NOT FOR PRODUCTION
+      ELASTICSEARCH_PWD: ${ELASTIC_PWD} # NOT FOR PRODUCTION
+{% endif %}
+    volumes:
+      - ./{{cookiecutter.project_slug}}:/app/{{cookiecutter.project_slug}}
+    ports:
+      - 8000:8000
+{% endif %}
+{% if cookiecutter.use_message_broker == 'Redis' %}
+  redis:
+    image: "redis:7.0.0-alpine"
+    ports:
+      - 6379:6379
+    logging:
+      driver: none
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+{% endif %}
+{% if cookiecutter.use_message_broker == 'RabbitMQ' %}
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+{% endif %}
+{% if cookiecutter.use_elk == 'y' %}
+  elasticsearch:
+    image: elasticsearch:${ELK_VERSION}
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms${ELK_MEMORY} -Xmx${ELK_MEMORY}"
+      - ELASTIC_PASSWORD=${ELASTIC_PWD}
+      - xpack.security.http.ssl.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./_data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  kibana:
+    image: kibana:${ELK_VERSION}
+    environment:
+      - ELASTICSEARCH_URL=${ELASTIC_URL}
+      - ELASTICSEARCH_HOSTS=${ELASTIC_URL}
+      - ELASTICSEARCH_USERNAME=kibana
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PWD}
+      - xpack.security.http.ssl.verification_mode=none # NOT FOR PRODUCTION
+      - xpack.security.transport.ssl.verification_mode=none # NOT FOR PRODUCTION
+    ports:
+      - 5601:5601
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+{% endif %}

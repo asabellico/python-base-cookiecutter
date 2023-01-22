@@ -1,0 +1,11 @@
+.*
+!.coveragerc
+!.env
+!.pylintrc
+venv
+env
+.pytest_cache
+.DS_Store
+.git
+.vscode
+__pycache__

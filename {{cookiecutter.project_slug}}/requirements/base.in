@@ -1,0 +1,4 @@
+{% if cookiecutter.use_rest == 'y' -%}
+fastapi
+uvicorn
+{%- endif %}

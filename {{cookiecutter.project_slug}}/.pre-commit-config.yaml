@@ -1,0 +1,81 @@
+default_stages: [commit]
+# fail_fast: true
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.2.0
+  hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-yaml
+    - id: check-added-large-files
+    - id: debug-statements
+    - id: check-merge-conflict
+    - id: no-commit-to-branch
+      args: ['--branch', 'master', '--branch', 'main']
+
+- repo: local
+  hooks:
+    - id: isort
+      name: isort
+      entry: isort
+      require_serial: true
+      language: python
+      types_or: [cython, pyi, python]
+      args: ['--filter-files']
+      minimum_pre_commit_version: '2.9.2'
+
+    - id: black
+      name: black
+      description: "Black: The uncompromising Python code formatter"
+      entry: black
+      language: python
+      minimum_pre_commit_version: 2.9.2
+      require_serial: true
+      types_or: [python, pyi]
+
+    - id: autoflake
+      name: autoflake
+      entry: autoflake
+      language: python
+      "types": [python]
+      require_serial: true
+      args:
+        - "--in-place"
+        # - "--expand-star-imports"
+        - "--remove-duplicate-keys"
+        - "--remove-unused-variables"
+
+    - id: flake8
+      name: flake8
+      description: '`flake8` is a command-line utility for enforcing style consistency across Python projects.'
+      entry: flake8
+      language: python
+      types: [python]
+      require_serial: true
+
+    - id: mypy
+      name: mypy
+      entry: mypy
+      language: python
+      types_or: [python, pyi]
+      args: ["--ignore-missing-imports", "--scripts-are-modules"]
+      require_serial: true
+      additional_dependencies: []
+      minimum_pre_commit_version: '2.9.2'
+
+    - id: pytest-check
+      name: pytest-unit
+      entry: pytest -k 'not unstable' --cov=my_project --cov-fail-under=100
+      language: system
+      pass_filenames: false
+      always_run: true
+      stages: [push]
+
+    - id: pytest-check
+      name: pytest-integration
+      entry: pytest -k 'not unstable' tests/integration --cov-fail-under=100
+      language: system
+      pass_filenames: false
+      always_run: true
+      stages: [push]
