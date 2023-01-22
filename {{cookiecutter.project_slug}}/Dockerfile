@@ -30,7 +30,7 @@ RUN $VIRTUAL_ENV/bin/pip install -r requirements/prod.txt
 
 FROM base AS dev
 USER root
-RUN apt-get update && apt-get install -y git net-tools curl wget locales locales-all
+RUN apt-get update && apt-get install -y git
 
 USER {{cookiecutter.project_slug}}
 RUN $VIRTUAL_ENV/bin/pip install -r requirements/dev.txt \
